@@ -18,15 +18,14 @@
             <p>
                 Agendamento de salas e equipamentos.
             </p>
-        </div>
-
-        <div class="links">
-            <a href="/login">
+            <div class="links">
+              <a href="/login">
                 Entrar
-            </a>
-            <a href="/register">
+              </a>
+              <a href="/register">
                 Criar Conta
-            </a>
+              </a>
+            </div>
         </div>
 
     </div>

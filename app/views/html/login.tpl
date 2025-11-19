@@ -18,7 +18,7 @@
             </div>
             <div class="form-group">
                 <label for="senha">Senha</label>
-                <input type="password" id="senha" name="senha" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$" required>
+                <input type="password" id="senha" name="senha" required>
             </div>
             <button type="submit" class="btn">Entrar</button>
         </form>

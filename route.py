@@ -25,11 +25,19 @@ def helper(info=None):
 # Suas rotas aqui:
 @app.route('/home')
 def helper(info=None):
+    status = Registration.is_logged_in(request)
+    if not status:
+        return redirect("/")
+
     return ctl.render('home')
 
 
 @app.route('/register', method=['GET', 'POST'])
 def helper(info=None):
+    status = Registration.is_logged_in(request)
+    if status:
+        return redirect("/home")
+
     if request.method == "POST":
         email = request.forms.get("email")
         password = request.forms.get("senha")
@@ -39,13 +47,31 @@ def helper(info=None):
     return ctl.render('register')
 
 
-@app.route('/login')
+@app.route('/login', method=['GET', 'POST'])
 def helper(info=None):
+    status = Registration.is_logged_in(request)
+    if status:
+        return redirect("/home")
+
+    if request.method == "POST":
+        email = request.forms.get("email")
+        password = request.forms.get("senha")
+        return Registration.login_user(response, email, password)
+
     return ctl.render('login')
+
+
+@app.route('/logout')
+def helper(info=None):
+    return Registration.logout_user(request, response)
 
 
 @app.route('/')
 def helper(info=None):
+    status = Registration.is_logged_in(request)
+    if status:
+        return redirect("/home")
+
     return ctl.render('landing')
 
 

@@ -83,6 +83,10 @@ body {
   color: red;
 }
 
+.status.reserved {
+  color: #0056b3;
+}
+
 .btn {
   background-color: #007bff;
   color: white;

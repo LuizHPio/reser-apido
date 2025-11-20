@@ -9,7 +9,10 @@ class UserController:
     @db.atomic()
     @staticmethod
     def is_logged_in(session_id, session_token) -> bool:
-        current_user = User.get(User.id == session_id)
+        try:
+            current_user = User.get(User.id == session_id)
+        except:
+            return False
         tokens_query: ModelSelect = current_user.tokens
         tokens_query = tokens_query.where(AuthToken.token == session_token)
         token_number = tokens_query.count()

@@ -1,6 +1,7 @@
 from app.controllers.application import Application
 from app.controllers.managment import Managment
 from app.controllers.registration import Registration
+from app.controllers.auth import Auth
 from bottle import Bottle, route, run, request, static_file, TEMPLATE_PATH
 from bottle import redirect, template, response
 
@@ -28,11 +29,11 @@ def helper(info=None):
 # Suas rotas aqui:
 @app.route('/home', name="home")
 def helper(info=None):
-    status = Registration.is_logged_in(request)
+    status = Auth.verify_authentication(request, response)
     if not status:
         return redirect("/")
 
-    return ctl.render('home')
+    return Application.show_home(request)
 
 
 @app.route('/my-reserves')
@@ -62,7 +63,9 @@ def helper(info=None):
 
 @app.route("/reservar/sala/<id>")
 def helper(id, info=None):
-    return Managment.reserve_room(id, request.get_cookie("session-id"))
+    access_token, _ = Auth.get_token_pair(request)
+
+    return Managment.reserve_room(id, access_token.user_id)
 
 
 @app.route("/reservar/equipamento/<id>")
@@ -82,7 +85,7 @@ def helper(id, info=None):
 
 @app.route('/register', method=['GET', 'POST'])
 def helper(info=None):
-    status = Registration.is_logged_in(request)
+    status = Auth.verify_authentication(request, response)
     if status:
         return redirect("/home")
 
@@ -97,7 +100,7 @@ def helper(info=None):
 
 @app.route('/login', method=['GET', 'POST'])
 def helper(info=None):
-    status = Registration.is_logged_in(request)
+    status = Auth.verify_authentication(request, response)
     if status:
         return redirect("/home")
 
@@ -116,12 +119,12 @@ def helper(info=None):
 
 @app.route("/admin")
 def helper(indo=None):
-    return Application.show_admin()
+    return Application.show_admin(request)
 
 
 @app.route('/')
 def helper(info=None):
-    status = Registration.is_logged_in(request)
+    status = Auth.verify_authentication(request, response)
     if status:
         return redirect("/home")
 

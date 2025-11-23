@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    %include("header", title="Minhas Reservas")
+    %include("header", title="Minhas Reservas", role=role)
 
     <main class="container">
         

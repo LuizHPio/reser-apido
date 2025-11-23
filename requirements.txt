@@ -1,3 +1,4 @@
 bcrypt==5.0.0
 bottle==0.13.4
 peewee==3.18.3
+PyJWT==2.10.1

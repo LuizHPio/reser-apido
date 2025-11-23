@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    %include("header", title="Home")
+    %include("header", title="Home", role=role)
 
     <main class="container">
         

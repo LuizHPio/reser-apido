@@ -1,31 +1,11 @@
 from .database import db
-from .models.User import User, AuthToken
+from .models.User import User, RefreshToken
 import bcrypt
 import datetime
 from peewee import DoesNotExist, IntegrityError, ModelSelect
 
 
 class UserController:
-    @db.atomic()
-    @staticmethod
-    def is_logged_in(session_id, session_token) -> bool:
-        try:
-            current_user = User.get(User.id == session_id)
-        except:
-            return False
-        tokens_query: ModelSelect = current_user.tokens
-        tokens_query = tokens_query.where(AuthToken.token == session_token)
-        token_number = tokens_query.count()
-
-        if token_number < 1:
-            return False
-
-        for token in tokens_query:
-            token: AuthToken
-            if token.expirity_date > datetime.datetime.now():
-                return True
-
-        return False
 
     @db.atomic()
     @staticmethod
@@ -49,14 +29,12 @@ class UserController:
     def login(email: str, password: str) -> tuple[bool, str | User]:
         """
         Return types
-            (True, AuthToken) on success
+            (True, user_id) on success
             (False, "Error message string") on failure
 
         """
-        email = email
 
         try:
-            print(email)
             login_user: User = User.get(email=email)
         except DoesNotExist:
             return (False, "User not found")
@@ -67,24 +45,4 @@ class UserController:
         if not (bcrypt.checkpw(password_bytes, password_hash_bytes)):
             return (False, "Wrong password")
 
-        user_token = AuthToken.create(user=login_user)
-        return (True, user_token)
-
-    @db.atomic()
-    @staticmethod
-    def logout(session_id, session_token) -> bool:
-        try:
-            user_instance = User.get_by_id(session_id)
-            tokens: ModelSelect = user_instance.tokens
-            selected_token: ModelSelect = tokens.where(
-                AuthToken.token == session_token)
-
-            for token in selected_token:
-                AuthToken.delete_by_id(token.id)
-
-        except Exception as e:
-            print("Couldn't delete AuthToken")
-            print(e)
-            return False
-
-        return True
+        return (True, login_user.id)

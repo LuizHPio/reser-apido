@@ -17,6 +17,14 @@
          <a class="disabled" href="/my-reserves">Minhas Reservas</a>
         % end
 
+        % if role == "admin":
+         % if title != "Painel Admin":
+         <a href="/admin">Painel Admin</a>
+         % else:
+         <a class="disabled" href="/admin">Painel Admin</a>
+         % end
+        % end
+
         <a onclick=logout()>Sair</a>
     </nav>
 

@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    %include("header", title="Painel Admin")
+    %include("header", title="Painel Admin", role=role)
 
     <div class="content">
         <h2>Criação de Novos Recursos</h2>

@@ -11,7 +11,6 @@ class Application():
             "landing": self.landing,
             "login": self.login,
             "register": self.register,
-            "home": self.home,
         }
 
     @staticmethod
@@ -19,15 +18,17 @@ class Application():
         user_id = Auth.get_userid(request)
         reserved_rooms = RoomController.get_rooms(user_id)
         reserved_equipment = EquipmentController.get_equipments(user_id)
+        access_token, _ = Auth.get_token_pair(request)
 
-        return template('reserves', reserved_rooms=reserved_rooms, reserved_equipment=reserved_equipment)
+        return template('reserves', reserved_rooms=reserved_rooms, reserved_equipment=reserved_equipment, role=access_token.role)
 
     @staticmethod
-    def show_admin():
+    def show_admin(request: LocalRequest):
         rooms = RoomController.get_rooms()
         equipments = EquipmentController.get_equipments()
+        access_token, _ = Auth.get_token_pair(request)
 
-        return template('admin', equipments=equipments, rooms=rooms)
+        return template('admin', equipments=equipments, rooms=rooms, role=access_token.role)
 
     def render(self, page):
         content = self.pages.get(page, self.helper)
@@ -45,8 +46,10 @@ class Application():
     def register(self):
         return template('register')
 
-    def home(self):
+    @staticmethod
+    def show_home(request: LocalRequest):
         room_list = RoomController.get_rooms()
         equipment_list = EquipmentController.get_equipments()
+        access_token, _ = Auth.get_token_pair(request)
 
-        return template('home', salas=room_list, equipment_list=equipment_list)
+        return template('home', salas=room_list, equipment_list=equipment_list, role=access_token.role)

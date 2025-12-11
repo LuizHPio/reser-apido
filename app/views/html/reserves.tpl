@@ -9,17 +9,18 @@
 <body>
 
     %include("header", title="Minhas Reservas", role=role)
+    <script src="/static/js/reserves-sockets.js"></script>
 
     <main class="container">
         
         <section class="resource-section">
             <h2>Salas Reservadas</h2>
-            <div class="resource-list">
+            <div class="resource-list" data-type="room">
                 %if reserved_rooms:
                 
                 % for sala in reserved_rooms:
 
-                <div class="resource-item">
+                <div class="resource-item" data-id="{{sala.id}}">
                     <div class="resource-info">
                         <h3>{{ sala.name }}</h3>
                         <p>{{ sala.description }}</p>
@@ -31,7 +32,7 @@
                         % end
                     </div>
                     
-                    <a onclick=free_room({{sala.id}}) href="/liberar/sala/{{sala.id}}" class="btn">Liberar sala</a>
+                    <button onclick=free_room({{sala.id}}) class="btn">Liberar sala</button>
                 </div>
                 % end
 
@@ -48,12 +49,12 @@
 
         <section class="resource-section">
             <h2>Equipamentos Reseravados</h2>
-            <div class="resource-list">
+            <div class="resource-list" data-type="equipment">
                 %if reserved_equipment:
                 
                 % for eq in reserved_equipment:
 
-                <div class="resource-item">
+                <div class="resource-item" data-id="{{eq.id}}">
                     <div class="resource-info">
                         <h3>{{ eq.name }}</h3>
                         <p>{{ eq.description }}</p>
@@ -65,7 +66,7 @@
                         % end
                     </div>
                     
-                    <a onclick=free_equipment({{eq.id}}) href="/liberar/equipamento/{{eq.id}}" class="btn">Liberar equipamento</a>
+                    <button onclick=free_equipment({{eq.id}}) class="btn">Liberar equipamento</button>
                 </div>
                 % end
 
@@ -85,10 +86,18 @@
     <script>
     function free_room(id){
         choice = confirm("Tem certeza que deseja liberar esse quarto? Sua reserva será desfeita.")
+
+        if (choice) {
+            fetch(`/liberar/sala/${id}`,{method:"POST"})
+        }
     }
 
     function free_equipment(id){
         choice = confirm("Tem certeza que deseja liberar esse equipamento? Sua reserva será desfeita.")
+
+        if (choice) {
+            fetch(`/liberar/equipamento/${id}`, {method:"POST"})
+        }
     }
 
     </script>

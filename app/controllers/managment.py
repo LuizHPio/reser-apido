@@ -2,54 +2,99 @@ from .db.RoomController import RoomController
 from .db.EquipmentController import EquipmentController
 from .auth import Auth
 from bottle import LocalRequest
+from typing import Literal
+import socketio
 
 
 class Managment:
+    sio: socketio.Server
+    user_socket_map: dict[str, int] = {}
 
-    @staticmethod
-    def reserve_room(id, session_id):
-        status = RoomController.reserve_room(id, session_id)
+    @classmethod
+    def configure(cls, sio: socketio.Server, user_sessions: dict[str, int]):
+        cls.sio = sio
+        cls.user_socket_map = user_sessions
 
+    @classmethod
+    def emit_request_status(cls, event_name: str, user_id: str, object_id: int, resource_type: Literal["room", "equipment"], status: bool, fail_message: str = "Um erro foi encontrado ao executar a sua solicitação."):
         if status:
-            return '<script>alert("Sala reservada com sucesso"); window.location.replace("/home");</script>'
+            cls.sio.emit(event_name, (object_id, resource_type))
         else:
-            return '<script>alert("Um erro foi encontrado ao tentar reservar a sala"); window.location.replace("/home");</script>'
+            cls.sio.emit("warning", fail_message,
+                         to=cls.user_socket_map[user_id])
 
-    @staticmethod
-    def unreserve_room(id, request: LocalRequest):
+    @classmethod
+    def reserve_room(cls, id, user_id):
+        status = RoomController.reserve_room(id, user_id)
+
+        cls.emit_request_status(
+            "successful-reserve",
+            user_id,
+            id,
+            "room",
+            status,
+            "Um erro foi encontrado ao tentar reservar a sala"
+        )
+
+        return
+
+    @classmethod
+    def unreserve_room(cls, id: int, request: LocalRequest, sio: socketio.Server):
         user_id = Auth.get_userid(request)
         status = RoomController.unreserve_room(id, user_id)
 
-        if status:
-            return '<script>alert("Sala liberada com sucesso"); window.location.replace("/home");</script>'
-        else:
-            return '<script>alert("Um erro foi encontrado ao tentar liberar a sala"); window.location.replace("/home");</script>'
+        if user_id == None:
+            return
 
-    @staticmethod
-    def reserve_equipment(id, request: LocalRequest):
-        session_id = Auth.get_userid(request)
-        status = EquipmentController.reserve_equipment(id, session_id)
+        cls.emit_request_status(
+            "successful-unreserve",
+            user_id,
+            id,
+            "room",
+            status,
+            "Um erro foi encontrado ao tentar liberar a sala"
+        )
 
-        if status:
-            return '<script>alert("Equipamento reservado com sucesso"); window.location.replace("/home");</script>'
-        else:
-            return '<script>alert("Um erro foi encontrado ao tentar reservar o equipamento"); window.location.replace("/home");</script>'
+    @classmethod
+    def reserve_equipment(cls, id, request: LocalRequest):
+        user_id = Auth.get_userid(request)
+        status = EquipmentController.reserve_equipment(id, user_id)
 
-    @staticmethod
-    def unreserve_equipment(id, request: LocalRequest):
+        if user_id == None:
+            return
+
+        cls.emit_request_status(
+            "successful-reserve",
+            user_id,
+            id,
+            "equipment",
+            status,
+            "Um erro foi encontrado ao tentar reservar o equipamento"
+        )
+
+    @classmethod
+    def unreserve_equipment(cls, id, request: LocalRequest):
         user_id = Auth.get_userid(request)
         status = EquipmentController.unreserve_equipment(id, user_id)
 
-        if status:
-            return '<script>alert("Equipamento liberado com sucesso"); window.location.replace("/home");</script>'
-        else:
-            return '<script>alert("Um erro foi encontrado ao tentar liberar o equipamento"); window.location.replace("/home");</script>'
+        if user_id == None:
+            return
+
+        cls.emit_request_status(
+            "successful-unreserve",
+            user_id,
+            id,
+            "equipment",
+            status,
+            "Um erro foi encontrado ao tentar liberar o equipamento"
+        )
 
     @staticmethod
     def create_room(request: LocalRequest):
-        name = request.forms.get("name")
-        description = request.forms.get("description")
-        is_available = request.forms.get("available")
+        # Bottle magic
+        name = request.forms.get("name")  # type: ignore
+        description = request.forms.get("description")  # type: ignore
+        is_available = request.forms.get("available")  # type: ignore
 
         status = RoomController.create_room(name, description, is_available)
 
@@ -70,9 +115,10 @@ class Managment:
 
     @staticmethod
     def create_equipment(request: LocalRequest):
-        name = request.forms.get("name")
-        description = request.forms.get("description")
-        is_available = request.forms.get("available")
+        # Bottle magic
+        name = request.forms.get("name")  # type: ignore
+        description = request.forms.get("description")  # type: ignore
+        is_available = request.forms.get("available")  # type: ignore
 
         status = EquipmentController.create_equipment(
             name, description, is_available)

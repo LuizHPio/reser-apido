@@ -7,19 +7,21 @@
     <link rel="stylesheet" href="/static/css/home.css">
 </head>
 <body>
-
     %include("header", title="Home", role=role)
+    
+    <script src="/static/js/home-sockets.js"></script>
+
 
     <main class="container">
         
         <section class="resource-section">
             <h2>Salas Disponíveis</h2>
-            <div class="resource-list">
+            <div class="resource-list" data-type="room">
                 %if salas:
                 
                 % for sala in salas:
 
-                <div class="resource-item">
+                <div class="resource-item" data-id="{{sala.id}}">
                     <div class="resource-info">
                         <h3>{{ sala.name }}</h3>
                         <p>{{ sala.description }}</p>
@@ -32,7 +34,7 @@
                     </div>
                     
                     % if sala.available:
-                        <button onclick="window.location.replace('/reservar/sala/{{ sala.id }}')" class="btn">Reservar</button>
+                        <button onclick='fetch("/reservar/sala/{{ sala.id }}", {method:"POST"})' class="btn">Reservar</button>
                     % else:
                         <button class="btn" disabled>Reservar</button>
                     % end
@@ -52,12 +54,12 @@
 
         <section class="resource-section">
             <h2>Equipamentos Disponíveis</h2>
-            <div class="resource-list">
+            <div class="resource-list" data-type="equipment">
                 
                 % if equipment_list:
                 
                 % for eq in equipment_list:
-                <div class="resource-item">
+                <div class="resource-item" data-id="{{eq.id}}">
                     <div class="resource-info">
                         <h3>{{ eq.name }}</h3>
                         <p>{{ eq.description }}</p>
@@ -70,7 +72,7 @@
                     </div>
                     
                     % if eq.available:
-                        <button onclick="window.location.replace('/reservar/equipamento/{{ eq.id }}')" class="btn">Reservar</button>
+                        <button onclick='fetch("/reservar/equipamento/{{ eq.id }}", {method:"POST"})' class="btn">Reservar</button>
                     % else:
                         <button class="btn" disabled>Reservar</button>
                     % end

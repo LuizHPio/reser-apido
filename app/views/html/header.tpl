@@ -1,4 +1,7 @@
 <link rel="stylesheet" href="/static/css/header.css">
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="static/js/header-sockets.js"></script>
+
 <header class="header">
     <a href="/home" class="logo">Reser-ápido</a>
 

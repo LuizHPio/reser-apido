@@ -14,11 +14,11 @@ class Registration():
 
         return {"success": status, "message": message}
 
-    def login_user(response: LocalResponse, email, password):
+    def login_user(request: LocalRequest, response: LocalResponse, email, password):
         status, message = UserController.login(email, password)
 
         if status:
-            Auth.generate_token_pair(message, response)
+            Auth.generate_token_pair(message, request, response)
             return redirect("/home")
 
         return message

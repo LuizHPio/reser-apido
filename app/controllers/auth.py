@@ -61,7 +61,7 @@ class Auth:
         return access_token.user_id
 
     @staticmethod
-    def generate_token_pair(user_id, response: LocalResponse, family=None) -> bool:
+    def generate_token_pair(user_id, request: LocalRequest, response: LocalResponse, family=None) -> bool:
         refresh_token = AuthController.generate_refresh_token(user_id, family)
         encrypted_refresh_token = Auth.encrypt_token(refresh_token.toDict())
 
@@ -84,6 +84,8 @@ class Auth:
 
         response.set_cookie("access-token", encrypted_access_token,
                             maxage=int(access_token_timedelta.total_seconds()), **cookie_settings)
+        request.cookies["access-token"] = encrypted_access_token
+
         response.set_cookie(
             "refresh-token", encrypted_refresh_token, maxage=int(refresh_token_timedelta.total_seconds()), **cookie_settings)
 
@@ -104,7 +106,7 @@ class Auth:
         # Access token expired, but refresh_token valid, fetch new one
         if AuthController.verify_refresh_token(refresh_token.token_id):
             # Valid refresh token, generate new token pair
-            Auth.generate_token_pair(refresh_token.user_id, response)
+            Auth.generate_token_pair(refresh_token.user_id, request, response)
             return True
 
         else:

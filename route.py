@@ -38,6 +38,9 @@ def helper(info=None):
 
 @app.route('/my-reserves')
 def helper(info=None):
+    status = Auth.verify_authentication(request, response)
+    if not status:
+        return redirect("/")
     return Application.show_reserves(request)
 
 
@@ -107,7 +110,7 @@ def helper(info=None):
     if request.method == "POST":
         email = request.forms.get("email")
         password = request.forms.get("senha")
-        return Registration.login_user(response, email, password)
+        return Registration.login_user(request, response, email, password)
 
     return ctl.render('login')
 
@@ -119,6 +122,10 @@ def helper(info=None):
 
 @app.route("/admin")
 def helper(indo=None):
+    status = Auth.verify_authentication(request, response)
+    if not status:
+        return redirect("/")
+
     return Application.show_admin(request)
 
 

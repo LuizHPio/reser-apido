@@ -1,4 +1,4 @@
-from bottle import LocalRequest, LocalResponse
+from bottle import BaseRequest, LocalResponse
 from dotenv import load_dotenv
 from .db.AuthController import AuthController, IAcessToken, IRefreshToken
 from cryptography.fernet import Fernet
@@ -13,7 +13,7 @@ cipher = Fernet(os.getenv('SECRET_KEY'))
 
 class Auth:
     @staticmethod
-    def get_token_pair(request: LocalRequest) -> tuple[IAcessToken | None, IRefreshToken | None]:
+    def get_token_pair(request: BaseRequest) -> tuple[IAcessToken | None, IRefreshToken | None]:
 
         encrypted_refresh_token = request.get_cookie("refresh-token")
         encrypted_access_token = request.get_cookie("access-token")
@@ -55,13 +55,13 @@ class Auth:
         return token_dict
 
     @staticmethod
-    def get_userid(request: LocalRequest) -> str | None:
+    def get_userid(request: BaseRequest) -> str | None:
         access_token, _ = Auth.get_token_pair(request)
 
         return access_token.user_id
 
     @staticmethod
-    def generate_token_pair(user_id, request: LocalRequest, response: LocalResponse, family=None) -> bool:
+    def generate_token_pair(user_id, request: BaseRequest, response: LocalResponse, family=None) -> bool:
         refresh_token = AuthController.generate_refresh_token(user_id, family)
         encrypted_refresh_token = Auth.encrypt_token(refresh_token.toDict())
 
@@ -92,7 +92,7 @@ class Auth:
         return True
 
     @staticmethod
-    def verify_authentication(request: LocalRequest, response: LocalResponse) -> bool:
+    def verify_authentication(request: BaseRequest, response: LocalResponse) -> bool:
 
         access_token, refresh_token = Auth.get_token_pair(request)
 
@@ -114,7 +114,7 @@ class Auth:
             return False
 
     @staticmethod
-    def end_session(request: LocalRequest, response: LocalResponse):
+    def end_session(request: BaseRequest, response: LocalResponse):
         _, refresh_token = Auth.get_token_pair(request)
 
         if refresh_token != None:

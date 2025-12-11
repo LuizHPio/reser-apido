@@ -4,6 +4,8 @@ from .auth import Auth
 
 
 class Registration():
+
+    @staticmethod
     def register_user(response: LocalResponse, name, email, password):
         status, message = UserController.register_user(name, email, password)
 
@@ -14,6 +16,7 @@ class Registration():
 
         return {"success": status, "message": message}
 
+    @staticmethod
     def login_user(request: LocalRequest, response: LocalResponse, email, password):
         status, message = UserController.login(email, password)
 
@@ -23,6 +26,7 @@ class Registration():
 
         return message
 
+    @staticmethod
     def logout_user(request: LocalRequest, response: LocalResponse):
 
         Auth.end_session(request, response)
